@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="bdPaygateInterkassa" title="[bd] Paygates: Interkassa" version_string="1.0.0" version_id="6" url="https://teslacloud.net" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="bdPaygateInterkassa_Listener" callback_method="load_class" active="1" hint="" description=""/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="bdPaygateInterkassa_Listener" callback_method="load_class" active="1" hint="" description=""/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="bdPaygateInterkassa" display_order="9999" debug_only="0"/>
+    <option option_id="bdPaygateInterkassa_FailUrl" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPaygateInterkassa" display_order="50"/>
+    </option>
+    <option option_id="bdPaygateInterkassa_ID" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPaygateInterkassa" display_order="10"/>
+    </option>
+    <option option_id="bdPaygateInterkassa_SecretKey" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPaygateInterkassa" display_order="30"/>
+    </option>
+    <option option_id="bdPaygateInterkassa_SecretKey_Test" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPaygateInterkassa" display_order="40"/>
+    </option>
+    <option option_id="bdPaygateInterkassa_SuccessUrl" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdPaygateInterkassa" display_order="40"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="bdpaygate_interkassa_call_to_action" version_id="6" version_string="1.0"><![CDATA[Pay with Interkassa]]></phrase>
+    <phrase title="option_bdPaygateInterkassa_FailUrl" version_id="6" version_string="1.0"><![CDATA[Fail URL]]></phrase>
+    <phrase title="option_bdPaygateInterkassa_FailUrl_explain" version_id="6" version_string="1.0"><![CDATA[Interkassa. Merchant will redirect using GET request]]></phrase>
+    <phrase title="option_bdPaygateInterkassa_ID" version_id="6" version_string="1.0"><![CDATA[Merchant Id]]></phrase>
+    <phrase title="option_bdPaygateInterkassa_ID_explain" version_id="6" version_string="1.0"><![CDATA[Interkassa]]></phrase>
+    <phrase title="option_bdPaygateInterkassa_SecretKey" version_id="6" version_string="1.0"><![CDATA[Secret Key(MD5)]]></phrase>
+    <phrase title="option_bdPaygateInterkassa_SecretKey_explain" version_id="6" version_string="1.0"><![CDATA[Interkassa]]></phrase>
+    <phrase title="option_bdPaygateInterkassa_SecretKey_Test" version_id="6" version_string="1.0"><![CDATA[Test Secret Key(MD5)]]></phrase>
+    <phrase title="option_bdPaygateInterkassa_SecretKey_Test_explain" version_id="6" version_string="1.0"><![CDATA[Interkassa]]></phrase>
+    <phrase title="option_bdPaygateInterkassa_SuccessUrl" version_id="6" version_string="1.0"><![CDATA[Success URL]]></phrase>
+    <phrase title="option_bdPaygateInterkassa_SuccessUrl_explain" version_id="6" version_string="1.0"><![CDATA[Interkassa. Merchant will redirect using GET request]]></phrase>
+    <phrase title="option_group_bdPaygateInterkassa" version_id="6" version_string="1.0"><![CDATA[[bd] Paygates: Interkassa]]></phrase>
+    <phrase title="option_group_bdPaygateInterkassa_description" version_id="6" version_string="1.0"><![CDATA[]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates/>
+  <public_template_modifications/>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>

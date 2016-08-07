@@ -43,7 +43,7 @@ class bdPaygateInterkassa_Processor extends bdPaygate_Processor_Abstract
 		$processorModel = $this->getModelFromCache('bdPaygate_Model_Processor');
 		$options = XenForo_Application::get('options');
         //$interkassa_key = $options->bdPaygateInterkassa_SecretKey;
-        $interkassa_key = $this->_sandboxMode() ? $options->bdPaygateInterkassa_SecretKey : $options->bdPaygateInterkassa_SecretKey_Test;
+        $interkassa_key = $this->_sandboxMode() ? $options->bdPaygateInterkassa_SecretKey_Test : $options->bdPaygateInterkassa_SecretKey;
 
         // Проверяем, не была ли уже проведена такая операция
 		$log = $processorModel->getLogByTransactionId($transactionId);

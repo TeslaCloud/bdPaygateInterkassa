@@ -1,1 +1,5 @@
-# bdPaygateInterkassa
+# [bd]Paygate: Interkassa
+Данная модификация позволяет вам настроить приём платежей на своем форуме через платежный шлюз [Interkassa](https://www.interkassa.com/)
+
+## Требования
+Требуется аддон [bd] Paygates версии не ниже 1.5.2
