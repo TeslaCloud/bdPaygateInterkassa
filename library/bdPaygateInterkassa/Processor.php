@@ -17,8 +17,15 @@ class bdPaygateInterkassa_Processor extends bdPaygate_Processor_Abstract
     public function isAvailable()
     {
         $options = XenForo_Application::getOptions();
-        if(empty($options->bdPaygateInterkassa_ID) || empty($options->bdPaygateInterkassa_SecretKey) || $this->_sandboxMode()){
-            return false;
+        if($this->_sandboxMode()){
+            if(empty($options->bdPaygateInterkassa_ID) || empty($options->bdPaygateInterkassa_SecretKey_Test)){
+                return false;
+            }
+        }
+        else{
+            if(empty($options->bdPaygateInterkassa_ID) || empty($options->bdPaygateInterkassa_SecretKey)){
+                return false;
+            }
         }
 
         return true;
