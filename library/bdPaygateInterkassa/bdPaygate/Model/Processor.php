@@ -12,12 +12,12 @@ class bdPaygateInterkassa_bdPaygate_Model_Processor extends XFCP_bdPaygateInterk
         return $currencies;
     }
 
-	public function getProcessorNames()
-	{
-		$names = parent::getProcessorNames();
-		
-		$names['interkassa'] = 'bdPaygateInterkassa_Processor';
-		
-		return $names;
-	}
+    public function getProcessorNames()
+    {
+        $names = parent::getProcessorNames();
+
+        $names['interkassa'] = 'bdPaygateInterkassa_Processor';
+
+        return $names;
+    }
 }
