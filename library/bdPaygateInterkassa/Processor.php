@@ -48,7 +48,6 @@ class bdPaygateInterkassa_Processor extends bdPaygate_Processor_Abstract
 
         $processorModel = $this->getModelFromCache('bdPaygate_Model_Processor');
         $options = XenForo_Application::get('options');
-        //$interkassa_key = $options->bdPaygateInterkassa_SecretKey;
         $interkassa_key = $this->_sandboxMode() ? $options->bdPaygateInterkassa_SecretKey_Test : $options->bdPaygateInterkassa_SecretKey;
 
         // Проверяем, не была ли уже проведена такая операция
@@ -110,7 +109,7 @@ class bdPaygateInterkassa_Processor extends bdPaygate_Processor_Abstract
             'ik_cur'    => utf8_strtoupper($currency),
             'ik_pm_no'  => substr(md5(time()), 0, 6),
             'ik_co_id'  => $options->bdPaygateInterkassa_ID,
-            'ik_suc_u'  => $options->bdPaygateInterkassa_SuccessUrl,
+            'ik_suc_u'  => $extraData['returnUrl'],
             'ik_suc_m'  => 'GET',
             'ik_fal_u'  => $options->bdPaygateInterkassa_FailUrl,
             'ik_fal_m'  => 'GET'
@@ -120,30 +119,18 @@ class bdPaygateInterkassa_Processor extends bdPaygate_Processor_Abstract
         // Сортировка эл-тов массива в алфавитном порядке
         ksort($payment, SORT_STRING);
         // Добавление секретного ключа в конец массива
-        array_push($payment, $interkassa_key);
+        $payment['ik_sign'] = $interkassa_key;
         // Конкатенация значений через символ ":"
         $crc = implode(':', $payment);
         // Кодирование MD5 хэша в BASE64
-        $crc = base64_encode(md5($crc, true));
+        $payment['ik_sign'] = base64_encode(md5($crc, true));
 
-        $form = <<<EOF
-            
-            <form action="{$formAction}" method="POST">
-                <input type="hidden" name="ik_x_item"   value="{$payment['ik_x_item']}" />
-                <input type="hidden" name="ik_co_id"    value="{$payment['ik_co_id']}" />
-                <input type="hidden" name="ik_pm_no"    value="{$payment['ik_pm_no']}" />
-                <input type="hidden" name="ik_cur"      value="{$payment['ik_cur']}" />
-                <input type="hidden" name="ik_am"       value="{$payment['ik_am']}" />
-                <input type="hidden" name="ik_desc"     value="{$payment['ik_desc']}" />
-                <input type="hidden" name="ik_suc_u"    value="{$payment['ik_suc_u']}" />
-                <input type="hidden" name="ik_suc_m"    value="{$payment['ik_suc_m']}" />
-                <input type="hidden" name="ik_fal_u"    value="{$payment['ik_fal_u']}" />
-                <input type="hidden" name="ik_fal_m"    value="{$payment['ik_fal_m']}" />
-                <input type="hidden" name="ik_sign"     value="{$crc}" />
-                
-                <input type="submit" value="{$callToAction}" class="button" />
-            </form>
-EOF;
+        // Генерация формы
+        $form = "<form action='{$formAction}' method='POST'>";
+        foreach ($payment as $item => $value){
+            $form .= "<input type='hidden' name='$item' value='$value' />";
+        }
+        $form .= "<input type='submit' value='{$callToAction}' class='button'/></form>";
 
         return $form;
     }

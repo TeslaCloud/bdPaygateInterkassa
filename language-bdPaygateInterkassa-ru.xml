@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <language title="Русский язык" date_format="j M Y" time_format="H:i" decimal_point="," thousands_separator="." language_code="ru-RU" text_direction="LTR" addon_id="bdPaygateInterkassa">
+  <phrase title="bdpaygate_interkassa_call_to_action" addon_id="bdPaygateInterkassa" version_id="6" version_string="1.0.0"><![CDATA[Оплатить через Interkassa]]></phrase>
   <phrase title="option_bdPaygateInterkassa_FailUrl" addon_id="bdPaygateInterkassa" version_id="6" version_string="1.0.0"><![CDATA[URL неудачной оплаты]]></phrase>
   <phrase title="option_bdPaygateInterkassa_FailUrl_explain" addon_id="bdPaygateInterkassa" version_id="6" version_string="1.0.0"><![CDATA[Interkassa. Оператор перенаправит GET запросом на этот адрес]]></phrase>
   <phrase title="option_bdPaygateInterkassa_ID" addon_id="bdPaygateInterkassa" version_id="6" version_string="1.0.0"><![CDATA[Идентификатор магазина]]></phrase>
