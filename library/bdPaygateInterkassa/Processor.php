@@ -126,11 +126,11 @@ class bdPaygateInterkassa_Processor extends bdPaygate_Processor_Abstract
         $payment['ik_sign'] = base64_encode(md5($crc, true));
 
         // Генерация формы
-        $form = "<form action='{$formAction}' method='POST'>";
+        $form = "<form action=\"{$formAction}\" method=\"POST\">";
         foreach ($payment as $item => $value){
-            $form .= "<input type='hidden' name='$item' value='$value' />";
+            $form .= "<input type=\"hidden\" name=\"$item\" value=\"$value\" />";
         }
-        $form .= "<input type='submit' value='{$callToAction}' class='button'/></form>";
+        $form .= "<input type=\"submit\" value=\"{$callToAction}\" class=\"button\"/></form>";
 
         return $form;
     }
