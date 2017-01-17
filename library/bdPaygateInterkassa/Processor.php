@@ -37,53 +37,48 @@ class bdPaygateInterkassa_Processor extends bdPaygate_Processor_Abstract
 
     public function validateCallback(Zend_Controller_Request_Http $request, &$transactionId, &$paymentStatus, &$transactionDetails, &$itemId)
     {
-        // TODO: Пофиксить алгоритм
         $input = new XenForo_Input($request);
         $transactionDetails = $input->getInput();
 
-        $signature = $transactionDetails['ik_sign'];
+        $options = XenForo_Application::get('options');
 
-        $transactionId = (!empty($transactionDetails['ik_inv_id']) ? ('interkassa_' . $transactionDetails['ik_inv_id']) : '');
+        if(empty($transactionDetails['ik_inv_id'])) {
+            $this->_setError("Invalid Id");
+            return false;
+        }
+
+        $interkassa_key = ($transactionDetails['ik_pw_via'] == 'test_interkassa_test_xts') ? $options->bdPaygateInterkassa_SecretKey_Test : $options->bdPaygateInterkassa_SecretKey;
+        $transactionId = 'interkassa_' . $transactionDetails['ik_inv_id'];
         $paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_OTHER;
 
         $processorModel = $this->getModelFromCache('bdPaygate_Model_Processor');
-        $options = XenForo_Application::get('options');
-        $interkassa_key = $this->_sandboxMode() ? $options->bdPaygateInterkassa_SecretKey_Test : $options->bdPaygateInterkassa_SecretKey;
 
         // Проверяем, не была ли уже проведена такая операция
         $log = $processorModel->getLogByTransactionId($transactionId);
-        if (!empty($log)) {
-            $this->_setError("Transaction {$transactionId} has already been processed");
-            return false;
-        }
-
-        // Генерация MD5 подписи
-        unset($transactionDetails['ik_sign'], $transactionDetails['p'], $transactionDetails['0'], $transactionDetails['_callbackIp']);
-        // Сортировка эл-тов массива в алфавитном порядке
-        ksort($transactionDetails, SORT_STRING);
-        // Добавление секретного ключа в конец массива
-        array_push($transactionDetails, $interkassa_key);
-        // Конкатенация значений через символ ":"
-        $crc = implode(':', $transactionDetails);
-        // Кодирование MD5 хэша в BASE64
-        $crc = base64_encode(md5($crc, true));
-
-        // Сверяем нашу подпись с той, которую мы получили
-        if ($crc != $signature) {
-            $this->_setError('Request not validated + ' . $crc . ' + ' . $signature);
-            return false;
-        }
-
-        // https://www.interkassa.com/documentation-sci/
-        switch ($transactionDetails['ik_inv_st']) {
-            case "success":
-                // Платеж успешно проведен
-                $itemId = $transactionDetails['ik_x_item'];
-                $paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED;
+        if (!empty($log))
+        {
+            if(($log['log_type'] == 'accepted') || ($log['log_type'] == 'rejected') || ($log['log_type'] == 'error'))
+            {
+                $this->_setError("Transaction {$transactionId} has already been processed");
                 echo "OK";
-                break;
-            default:
+                return false;
+            }
+        }
+        else
+        {
+            if(!$this->ikMd5($transactionDetails, $interkassa_key))
+            {
+                $this->_setError('interkassa_'.$transactionDetails['ik_inv_id']." Incorrect sign. See log file");
                 $paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_REJECTED;
+                echo "ERROR";
+                return false;
+            }
+            else
+            {
+                $itemId = base64_decode($transactionDetails['ik_x_item']);
+                $paymentStatus = bdPaygate_Processor_Abstract::PAYMENT_STATUS_ACCEPTED;
+                echo "OK $itemId";
+            }
         }
 
         return true;
@@ -100,30 +95,24 @@ class bdPaygateInterkassa_Processor extends bdPaygate_Processor_Abstract
         $callToAction = new XenForo_Phrase('bdpaygate_interkassa_call_to_action');
 
         $options = XenForo_Application::get('options');
+        $visitor = XenForo_Visitor::getInstance();
         $interkassa_key = $options->bdPaygateInterkassa_SecretKey;
 
         $payment = array(
-            'ik_x_item' => $itemId,
-            'ik_desc'   => $itemName,
-            'ik_am'     => $amount,
-            'ik_cur'    => utf8_strtoupper($currency),
-            'ik_pm_no'  => substr(md5(time()), 0, 6),
             'ik_co_id'  => $options->bdPaygateInterkassa_ID,
+            'ik_pm_no'  => substr(md5(time()), 0, 6),
+            'ik_cur'    => utf8_strtoupper($currency),
+            'ik_am'     => $amount,
+            'ik_desc'   => $itemName,
+            'ik_cli'    => $visitor->email,
+            'ik_x_item' => base64_encode($itemId),
             'ik_suc_u'  => $extraData['returnUrl'],
             'ik_suc_m'  => 'GET',
             'ik_fal_u'  => $options->bdPaygateInterkassa_FailUrl,
             'ik_fal_m'  => 'GET'
         );
 
-        // Генерация MD5 подписи для формы
-        // Сортировка эл-тов массива в алфавитном порядке
-        ksort($payment, SORT_STRING);
-        // Добавление секретного ключа в конец массива
-        $payment['ik_sign'] = $interkassa_key;
-        // Конкатенация значений через символ ":"
-        $crc = implode(':', $payment);
-        // Кодирование MD5 хэша в BASE64
-        $payment['ik_sign'] = base64_encode(md5($crc, true));
+        $payment['ik_sign'] = $this->ikMd5($payment, $interkassa_key, true);
 
         // Генерация формы
         $form = "<form action=\"{$formAction}\" method=\"POST\">";
@@ -133,5 +122,36 @@ class bdPaygateInterkassa_Processor extends bdPaygate_Processor_Abstract
         $form .= "<input type=\"submit\" value=\"{$callToAction}\" class=\"button\"/></form>";
 
         return $form;
+    }
+
+    private function ikMd5($transactionDetails, $shopPassword, $generate = false){
+        $receivedMd5 = $transactionDetails['ik_sign'];
+        unset($transactionDetails['ik_sign'], $transactionDetails['p']);
+
+        /// Генерация MD5 подписи
+        // Сортировка эл-тов массива в алфавитном порядке
+        ksort($transactionDetails, SORT_STRING);
+        // Добавление секретного ключа в конец массива
+        $transactionDetails['ik_sign'] = $shopPassword;
+        // Конкатенация значений через символ ":"
+        $crc = implode(':', $transactionDetails);
+        // Кодирование MD5 хэша в BASE64
+        $generatedMd5 = base64_encode(md5($crc, true));
+        if($generate == true)
+            return $generatedMd5;
+
+        if ($receivedMd5 != $generatedMd5) {
+            $this->log('interkassa_'.$transactionDetails['ik_inv_id']." Wait for md5:" . $generatedMd5 . ", received md5: " . $receivedMd5);
+            return false;
+        }
+        return true;
+    }
+
+    private function log($str) {
+        if(is_array($str) || is_object($str)) {
+            $str = print_r($str,true);
+        }
+        $str = $str . "\n";
+        file_put_contents('InterkassaErrors.txt', '[' . date("Y-m-d H:i:s") . '] ' . $str, FILE_APPEND);
     }
 }
