@@ -125,8 +125,12 @@ class bdPaygateInterkassa_Processor extends bdPaygate_Processor_Abstract
     }
 
     private function ikMd5($transactionDetails, $shopPassword, $generate = false){
-        $receivedMd5 = $transactionDetails['ik_sign'];
-        unset($transactionDetails['ik_sign'], $transactionDetails['p']);
+        if(!empty($transactionDetails['ik_sign'])){
+            $receivedMd5 = $transactionDetails['ik_sign'];
+            unset($transactionDetails['ik_sign'], $transactionDetails['p']);
+        }
+        else
+            $receivedMd5 = '';
 
         /// Генерация MD5 подписи
         // Сортировка эл-тов массива в алфавитном порядке
